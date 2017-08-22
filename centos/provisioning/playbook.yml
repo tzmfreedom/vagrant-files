@@ -16,6 +16,13 @@
         state: present
       with_items:
         - mysql-community-server
+        - vim
+        - curl
+        - wget
+        - gcc
+        - openssl-devel
+        - sqlite-devel
+        - git
         - MySQL-python
         - libselinux-python
     - name: mysqld 起動・自動起動設定
