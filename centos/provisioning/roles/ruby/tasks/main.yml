@@ -1,0 +1,34 @@
+- name: install ruby
+  become: yes
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - openssl-devel
+    - sqlite-devel
+    - readline-devel
+    - ruby
+
+- name: install rbenv
+  git:
+    repo: https://github.com/sstephenson/rbenv.git
+    dest: "{{ rbenv_root }}"
+
+- name: install ruby-build
+  git:
+    repo: https://github.com/rbenv/ruby-build.git
+    dest: "{{ rbenv_root }}/plugins/ruby-build"
+
+- name: add shell_rc_path to rbenv path
+  shell: |
+    echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> {{ shell_rc_path }}
+    echo 'eval "$(rbenv init -)"' >> {{ shell_rc_path }}
+
+- name: install versions
+  command:
+    $SHELL -lc "{{ rbenv_root }}/bin/rbenv install {{ item }}"
+  with_items:
+    - 2.2.7
+    - 2.3.4
+    - 2.4.1
+    - jruby-9.1.12.0

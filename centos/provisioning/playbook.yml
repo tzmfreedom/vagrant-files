@@ -1,65 +1,43 @@
 ---
 
 - hosts: development
-  become: yes
   user: vagrant
   vars: 
     - mysql_root_password: password
-  tasks:
-    - name: install rpm repository
-      yum: 
-        name: https://dev.mysql.com/get/mysql57-community-release-el6-11.noarch.rpm
-        state: present
-    - name: install mysqld
+    - rbenv_root: /home/vagrant/.rbenv
+    - shell_rc_path: ~/.zshrc
+    - curl_file: curl-7.55.1
+  roles:
+    - { role: mysql, become: yes }
+    - ruby
+  pre_tasks:
+    - name: install packages
+      become: yes
       yum:
         name: "{{ item }}"
         state: present
       with_items:
-        - mysql-community-server
         - vim
         - curl
         - wget
         - gcc
+        - zsh
         - openssl-devel
         - sqlite-devel
+        - readline-devel
         - git
-        - MySQL-python
-        - libselinux-python
-    - name: mysqld 起動・自動起動設定
-      service:
-        name: mysqld
-        state: started
-        enabled: yes
-    - name: check .my.cnf exists
-      stat:
-        path: /root/.my.cnf
-      register: mycnf_file
-    - name: rootのデフォルトパスワードを取得
-      shell: "cat /var/log/mysqld.log | grep 'temporary password' | awk -F'root@localhost: ' '{ print $2 }'"
-      register: mysql_default_root_password
-      when: not mycnf_file.stat.exists
-
-    - name: set globals
+    - name: change zsh
+      become: yes
+      command: chsh -s /bin/zsh vagrant
+    - name: install libcurl
       shell: |
-        mysql -u root -p'{{ mysql_default_root_password.stdout }}' --connect-expired-password -e "SET GLOBAL validate_password_policy=LOW;"
-        mysql -u root -p'{{ mysql_default_root_password.stdout }}' --connect-expired-password -e "SET GLOBAL validate_password_length=4;"
-
-    - name: change root password
-      shell: "mysql -u root -p'{{ mysql_default_root_password.stdout }}' --connect-expired-password -e \"ALTER USER 'root'@'{{ item }}' IDENTIFIED BY '{{ mysql_root_password }}';\""
-      with_items:
-        - localhost
-      when: not mycnf_file.stat.exists
-    - name: /root/.my.cnf by template
-      template: 
-        src: templates/my.cnf.j2
-        dest: /root/.my.cnf
-        owner: root
-        group: root
-        mode: 0600
-      when: not mycnf_file.stat.exists
-    - name: add user
-      mysql_user:
-        name: vagrant
-        password: vagrant
-        host: localhost
-        priv: '*.*:ALL,GRANT'
+        "wget https://curl.haxx.se/download/{{ curl_file }}.tar.gz"
+        tar zxf {{ curl_file}}.tar.gz
+        cd {{ curl_file }}
+        ./configure
+        make
+    - name: install libcurl
+      become: yes
+      shell: |
+        cd {{ curl_file }}
+        make install
