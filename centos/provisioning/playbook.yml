@@ -25,7 +25,15 @@
         - openssl-devel
         - sqlite-devel
         - readline-devel
+        - mysql-devel
         - git
+        - tree
+        - epel-release
+    - name: install nodejs
+      become: yes
+      yum:
+        name: nodejs
+        enablerepo: epel
     - name: change zsh
       become: yes
       command: chsh -s /bin/zsh vagrant
