@@ -1,3 +1,8 @@
+- name: install rpm repository
+  yum:
+    name: https://dev.mysql.com/get/mysql57-community-release-el6-11.noarch.rpm
+    state: present
+
 - name: install mysqld
   yum:
     name: "{{ item }}"
@@ -6,11 +11,6 @@
     - mysql-community-server
     - MySQL-python
     - libselinux-python
-
-- name: install rpm repository
-  yum:
-    name: https://dev.mysql.com/get/mysql57-community-release-el6-11.noarch.rpm
-    state: present
 
 - name: mysqld 起動・自動起動設定
   service:

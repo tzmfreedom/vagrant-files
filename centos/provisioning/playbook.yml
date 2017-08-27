@@ -39,7 +39,7 @@
       command: chsh -s /bin/zsh vagrant
     - name: install libcurl
       shell: |
-        "wget https://curl.haxx.se/download/{{ curl_file }}.tar.gz"
+        wget "https://curl.haxx.se/download/{{ curl_file }}.tar.gz"
         tar zxf {{ curl_file}}.tar.gz
         cd {{ curl_file }}
         ./configure
