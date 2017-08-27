@@ -29,6 +29,7 @@
         - git
         - tree
         - epel-release
+        - gcc-c++
     - name: install nodejs
       become: yes
       yum:
