@@ -30,6 +30,7 @@
         - tree
         - epel-release
         - gcc-c++
+        - postgresql-devel
     - name: install nodejs
       become: yes
       yum:
